@@ -39,7 +39,12 @@ services:
       DATABASE_URL: postgresql://litefarm_user:litefarm_password@db:5432/litefarm_db
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      JWT_SECRET: "guvenli_random_jwt_anahtari"
+      # packages/api/src/middleware/acl/check*Jwt.js her biri server açılışında ayrı bir secret'ı zorunlu kılıyor
+      JWT_SECRET: "f7962e19154ca860b8b60ae283c2813cf1bd96e928b8e8af63a05ab3c4107e21"
+      JWT_INVITE_SECRET: "715561442eb77594cd0e0f6cc95d78d6bb184d2dc9949092c77e9f4ebb5a9c89"
+      JWT_RESET_SECRET: "fe7c975cb6bb6aa932ce7370d0ed9f04780a07e206a31ea2de446c7a1c88ffa9"
+      JWT_SCHEDULER_SECRET: "8e6f7e84a839698e9940c76831160a167823436f8f5c9b8b4344a987ebf82c58"
+      JWT_FARM_SECRET: "48a4181437f0c3038b5cc14393a1efa8b820dbbc5e577d243fb2dde98dd0b753"
 
   webapp:
     build:
