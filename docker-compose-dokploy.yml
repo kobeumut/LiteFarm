@@ -1,0 +1,63 @@
+version: "3.8"
+services:
+  db:
+    image: postgis/postgis:15-3.3
+    container_name: litefarm-db
+    restart: always
+    environment:
+      POSTGRES_USER: litefarm_user
+      POSTGRES_PASSWORD: litefarm_secure_password
+      POSTGRES_DB: litefarm_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U litefarm_user -d litefarm_db
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  redis:
+    image: redis:7-alpine
+    container_name: litefarm-redis
+    restart: always
+    volumes:
+      - redis_data:/data
+  api:
+    build:
+      context: .
+      dockerfile: ./packages/api/Dockerfile
+    container_name: litefarm-api
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: litefarm_user
+      DB_PASSWORD: litefarm_secure_password
+      DB_NAME: litefarm_db
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: buraya_guvenli_random_bir_anahtar_yazin
+  webapp:
+    build:
+      context: .
+      dockerfile: ./packages/webapp/Dockerfile
+    container_name: litefarm-webapp
+    restart: always
+    depends_on:
+      - api
+    ports:
+      - 3000:3000
+volumes:
+  postgres_data: null
+  redis_data: null
+networks:
+  dokploy-network:
+    external: true
