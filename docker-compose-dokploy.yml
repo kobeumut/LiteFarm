@@ -22,8 +22,8 @@ services:
 
   api:
     build:
-      context: .                          # Repo kök dizini
-      dockerfile: packages/api/Dockerfile  # Dockerfile dosyasının konumu
+      context: ./packages                 # Dockerfile içindeki COPY ./api/, ./shared/ yolları bu context'e göre
+      dockerfile: api/prod.Dockerfile      # Dockerfile dosyasının konumu
     container_name: litefarm-api
     restart: always
     ports:
@@ -35,23 +35,20 @@ services:
         condition: service_started
     environment:
       NODE_ENV: production
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_USER: litefarm_user
-      DB_PASSWORD: litefarm_password
-      DB_NAME: litefarm_db
+      # packages/api/.knex/knexfile.js "production" ortamı DB_HOST vb. değil DATABASE_URL okuyor
+      DATABASE_URL: postgresql://litefarm_user:litefarm_password@db:5432/litefarm_db
       REDIS_HOST: redis
       REDIS_PORT: 6379
       JWT_SECRET: "guvenli_random_jwt_anahtari"
 
   webapp:
     build:
-      context: .                             # Repo kök dizini
-      dockerfile: packages/webapp/Dockerfile # Dockerfile dosyasının konumu
+      context: ./packages                    # Dockerfile içindeki COPY ./webapp/, ./shared/ yolları bu context'e göre
+      dockerfile: webapp/dokploy.Dockerfile   # Dokploy için SSL'siz, port 80'de servis eden özel Dockerfile
     container_name: litefarm-webapp
     restart: always
     ports:
-      - "3000:3000"
+      - "3000:80"
     depends_on:
       - api
 
